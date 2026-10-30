@@ -16,7 +16,7 @@ interface DohAnswer {
   data: string;
 }
 
-async function query(name: string, type: "TXT" | "CNAME" | "A"): Promise<string[]> {
+export async function query(name: string, type: "TXT" | "CNAME" | "A"): Promise<string[]> {
   const res = await fetch(`${DOH}?name=${encodeURIComponent(name)}&type=${type}`, {
     headers: { accept: "application/dns-json" },
   });
