@@ -6,7 +6,7 @@ import { generateOtp } from "@/lib/phone/otp-rules";
  * Six-digit e-mail codes for sensitive account changes (merge, password,
  * 2FA). Stored only as digests, 10 minutes, max 5 tries, single use.
  */
-export type SecurityPurpose = "merge" | "password" | "two_factor" | "workspace_convert" | "delete_account";
+export type SecurityPurpose = "merge" | "password" | "two_factor" | "workspace_convert" | "delete_account" | "identity_link";
 
 const TTL_MIN = 10;
 const MAX_ATTEMPTS = 5;

@@ -2,8 +2,8 @@ import { createServerFn } from "@tanstack/react-start";
 import { getRequest } from "@tanstack/react-start/server";
 import { requireAuth } from "@/lib/auth/middleware";
 
-type Purpose = "merge" | "password" | "two_factor" | "delete_account";
-const PURPOSES: Purpose[] = ["merge", "password", "two_factor", "delete_account"];
+type Purpose = "merge" | "password" | "two_factor" | "delete_account" | "identity_link";
+const PURPOSES: Purpose[] = ["merge", "password", "two_factor", "delete_account", "identity_link"];
 
 /** Whether this member ever set a password (passwordless = Google/Apple/passkey only). */
 export const getPasswordState = createServerFn({ method: "GET" })

@@ -272,6 +272,28 @@ export default function AuthNeon({ initialMode = "magic" }: { initialMode?: Mode
     }
   };
 
+  // WebAuthn Conditional UI: saved passkeys appear in the e-mail field's autofill.
+  useEffect(() => {
+    let cancelled = false;
+    const pkc = typeof window !== "undefined" ? window.PublicKeyCredential : undefined;
+    if (!pkc?.isConditionalMediationAvailable) return;
+    void pkc.isConditionalMediationAvailable().then(async (ok) => {
+      if (!ok || cancelled) return;
+      try {
+        const res = await authClient.signIn.passkey({ autoFill: true });
+        if (cancelled || !res || res.error) return;
+        toast.success(t("auth.ui.toast.welcome"));
+        await refresh();
+      } catch {
+        // Aborted or dismissed autofill: the explicit passkey button still works.
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   /** Passwordless: Neon Auth mailt een eenmalige inloglink. */
   const continueWithEmail = async (e: React.FormEvent) => {
     e.preventDefault();

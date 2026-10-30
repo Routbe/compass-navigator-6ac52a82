@@ -45,17 +45,25 @@ export function DataExportCard() {
           socials, e-mailaliassen en domeinen.
         </p>
       </div>
-      <Button
-        type="button"
-        variant="outline"
-        size="sm"
-        onClick={download}
-        disabled={busy}
-        className="gap-2"
-      >
-        {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
-        Download mijn data
-      </Button>
+      <div className="flex flex-wrap gap-2">
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={download}
+          disabled={busy}
+          className="gap-2"
+        >
+          {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
+          JSON
+        </Button>
+        <Button asChild variant="outline" size="sm" className="gap-2">
+          <a href="/api/user/vault/export" download>
+            <Download className="h-4 w-4" />
+            Volledige kluis (ZIP)
+          </a>
+        </Button>
+      </div>
     </div>
   );
 }
