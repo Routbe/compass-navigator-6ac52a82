@@ -25,6 +25,7 @@ type ClientRow = {
   privacyUrl: string | null;
   termsUrl: string | null;
   redirectUris: string[];
+  postLogoutRedirectUris?: string[];
   scopes: string[];
   status: string;
   hasSecret: boolean;
@@ -49,6 +50,7 @@ const empty = {
   privacyUrl: "",
   termsUrl: "",
   redirectUris: "",
+  postLogoutRedirectUris: "",
   scopes: ["openid", "profile"],
 };
 
@@ -147,6 +149,7 @@ export function OAuthConsole() {
       privacyUrl: row.privacyUrl ?? "",
       termsUrl: row.termsUrl ?? "",
       redirectUris: row.redirectUris.join("\n"),
+      postLogoutRedirectUris: (row.postLogoutRedirectUris ?? []).join("\n"),
       scopes: row.scopes,
     });
     setEditing(true);
@@ -165,6 +168,10 @@ export function OAuthConsole() {
           privacyUrl: form.privacyUrl.trim() || null,
           termsUrl: form.termsUrl.trim() || null,
           redirectUris: form.redirectUris
+            .split("\n")
+            .map((u) => u.trim())
+            .filter(Boolean),
+          postLogoutRedirectUris: form.postLogoutRedirectUris
             .split("\n")
             .map((u) => u.trim())
             .filter(Boolean),
@@ -315,6 +322,20 @@ export function OAuthConsole() {
               <p className="text-xs text-muted-foreground">
                 Alleen https; http mag uitsluitend voor localhost tijdens ontwikkeling. Adressen
                 worden letterlijk vergeleken.
+              </p>
+              <Label htmlFor="oa-logout-uris" className="pt-2">
+                Adressen na uitloggen — één per lijn
+              </Label>
+              <textarea
+                id="oa-logout-uris"
+                rows={3}
+                className="w-full rounded-lg border border-border bg-background p-3 font-mono text-xs"
+                placeholder={"https://jouwapp.be/uitgelogd"}
+                value={form.postLogoutRedirectUris}
+                onChange={(e) => setForm({ ...form, postLogoutRedirectUris: e.target.value })}
+              />
+              <p className="text-xs text-muted-foreground">
+                Na uitloggen via ROUT sturen we alleen terug naar deze adressen.
               </p>
             </TabsContent>
 

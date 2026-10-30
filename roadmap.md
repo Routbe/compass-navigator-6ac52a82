@@ -2,7 +2,8 @@
 ## Master directive: Sovereign Identity & Enterprise (30 oktober 2026)
 - [x] Fase 2: identity_links + append-only events (db/0113/0114), automerge uit, proofs (bestond bij import; geverifieerd via tests)
 - [x] Fase 3a: pairwise, refreshfamilies, revoke, introspect (bestond), end-session route + discovery-velden
-- [ ] Fase 3b: post_logout_redirect_uris beheren in console, verbonden apps intrekken in /studio/account
+- [x] Fase 3b: post_logout_redirect_uris beheren in console; verbonden apps intrekken in /studio/account (bestond)
+- [x] Nulmeting 30/10: tsgo 0 fouten, 865 tests groen na snapshot-refresh (0117/0118)
 - [x] Fase 4a: merkbescherming (db/0116, isReservedName op handles/aliassen/workspaces) + namespace matrix (gratis = 4-teken suffix)
 - [ ] Fase 4b: admin-vrijgave merknaam in UI, schone slug bij upgrade naar Plus/Pro, DNS-claims, passkey-first login, Data Vault, scope-switcher, workspace-quotum
 - [ ] Fase 5: rout_app RLS-policies, users-consolidatie en immutable migraties/snapshot

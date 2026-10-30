@@ -54,6 +54,7 @@ export const clientSchema = z
     privacyUrl: optionalHttpsUrl,
     termsUrl: optionalHttpsUrl,
     redirectUris: z.array(redirectUriSchema).max(MAX_REDIRECT_URIS),
+    postLogoutRedirectUris: z.array(redirectUriSchema).max(MAX_REDIRECT_URIS).optional(),
     scopes: z.array(scopeEnum).max(4),
     flowPreference: z.enum(["seamless", "strict"]).optional(),
     richIdentityEnabled: z.boolean().optional(),
