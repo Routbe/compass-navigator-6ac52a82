@@ -31,6 +31,8 @@ import { ConvertToWorkspaceWizard } from "@/components/settings/ConvertToWorkspa
 import { BunqConnectionPanel } from "@/components/dashboard/BunqConnectionPanel";
 import { BillingHistoryPanel } from "@/components/dashboard/BillingHistoryPanel";
 import { DataExportCard } from "@/components/dashboard/DataExportCard";
+import { DeleteAccountPanel } from "@/components/settings/DeleteAccountPanel";
+import { IdentityLinksPanel } from "@/components/settings/IdentityLinksPanel";
 import { CustomDomainPanel } from "@/components/dashboard/CustomDomainPanel";
 
 import { Input } from "@/components/ui/input";
@@ -112,9 +114,6 @@ export default function AccountSettings() {
   const [mfaBusy, setMfaBusy] = useState(false);
 
   const [exporting, setExporting] = useState(false);
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [deleteConfirmText, setDeleteConfirmText] = useState("");
-  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     if (!loading && !user) nav("/auth/sign-in", { replace: true });
@@ -283,31 +282,6 @@ export default function AccountSettings() {
       toast.error("Could not export account data.");
     } finally {
       setExporting(false);
-    }
-  };
-
-  const deleteAccount = async () => {
-    if (deleteConfirmText !== "DELETE") return;
-    setDeleting(true);
-    try {
-      await Promise.all([
-        db.from("saved_qrs").delete().neq("id", ""),
-        db.from("tracked_qrs").delete().eq("user_id", user.id),
-      ]);
-      const { error } = await db.rpc("delete_account" as never);
-      if (error) {
-        toast.error(
-          "Your data was removed, but the account itself could not be deleted automatically. Contact support to finish closing your account.",
-        );
-      } else {
-        toast.success("Account deleted.");
-      }
-      await signOut();
-      nav("/", { replace: true });
-    } catch {
-      toast.error("Something went wrong while deleting your account.");
-    } finally {
-      setDeleting(false);
     }
   };
 
@@ -567,6 +541,7 @@ export default function AccountSettings() {
         {/* Tab 3 — Linked identities */}
         <TabsContent value="identities" className="space-y-4">
           <IdentitiesPanel />
+          <IdentityLinksPanel />
         </TabsContent>
 
         {/* Tab 4 — Account status & control */}
@@ -609,20 +584,7 @@ export default function AccountSettings() {
               </Button>
             </div>
 
-            <div className="flex flex-col gap-2 rounded-xl border border-border bg-background p-3 sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                <p className="text-sm font-medium text-foreground">Delete Account</p>
-                <p className="text-xs text-muted-foreground">
-                  Permanently delete your account and all associated data. This cannot be undone.
-                </p>
-              </div>
-              <Button
-                onClick={() => setDeleteDialogOpen(true)}
-                className="bg-red-600 text-white hover:bg-red-700"
-              >
-                Delete account…
-              </Button>
-            </div>
+            <DeleteAccountPanel />
           </section>
 
           <Button
@@ -708,34 +670,6 @@ export default function AccountSettings() {
         </DialogContent>
       </Dialog>
 
-      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Delete account</DialogTitle>
-            <DialogDescription>
-              This will permanently delete your account and all associated data. Type{" "}
-              <span className="font-mono font-semibold">DELETE</span> to confirm.
-            </DialogDescription>
-          </DialogHeader>
-          <Input
-            value={deleteConfirmText}
-            onChange={(e) => setDeleteConfirmText(e.target.value)}
-            placeholder="DELETE"
-            className="h-11 rounded-xl"
-          />
-          <Button
-            onClick={deleteAccount}
-            disabled={deleteConfirmText !== "DELETE" || deleting}
-            className="h-11 w-full bg-red-600 text-white hover:bg-red-700"
-          >
-            {deleting ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              "Permanently delete my account"
-            )}
-          </Button>
-        </DialogContent>
-      </Dialog>
     </AppLayout>
   );
 }
