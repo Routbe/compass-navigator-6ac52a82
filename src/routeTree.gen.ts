@@ -71,6 +71,7 @@ import { Route as ClaimTokenRouteImport } from './routes/claim_.$token'
 import { Route as DevEmailsRouteImport } from './routes/dev.emails'
 import { Route as FIdRouteImport } from './routes/f.$id'
 import { Route as GiftCodeRouteImport } from './routes/gift_.$code'
+import { Route as IdentityRevokeRouteImport } from './routes/identity.revoke'
 import { Route as OauthAuthorizeRouteImport } from './routes/oauth.authorize'
 import { Route as OauthEndSessionRouteImport } from './routes/oauth.end-session'
 import { Route as RUsernameRouteImport } from './routes/r.$username'
@@ -141,6 +142,7 @@ import { Route as ApiPublicBookingIcsIdRouteImport } from './routes/api_.public.
 import { Route as ApiPublicCronAvailabilityRouteImport } from './routes/api_.public.cron.availability'
 import { Route as ApiPublicCronCheckDnsRouteImport } from './routes/api_.public.cron.check-dns'
 import { Route as ApiPublicCronCleanupAssetsRouteImport } from './routes/api_.public.cron.cleanup-assets'
+import { Route as ApiPublicCronPurgeAccountsRouteImport } from './routes/api_.public.cron.purge-accounts'
 import { Route as ApiPublicCronPurgeAltchaRouteImport } from './routes/api_.public.cron.purge-altcha'
 import { Route as ApiPublicCronPurgeSharedFilesRouteImport } from './routes/api_.public.cron.purge-shared-files'
 import { Route as ApiPublicCronScanTransfersRouteImport } from './routes/api_.public.cron.scan-transfers'
@@ -168,6 +170,7 @@ import { Route as ApiPublicWeatherWebhookTokenRouteImport } from './routes/api_.
 import { Route as ApiPublicWebhooksBankingRouteImport } from './routes/api_.public.webhooks.banking'
 import { Route as ApiPublicYoutubeCallbackRouteImport } from './routes/api_.public.youtube.callback'
 import { Route as ApiPublicYoutubeCardRouteImport } from './routes/api_.public.youtube.card'
+import { Route as ApiUserVaultExportRouteImport } from './routes/api_.user.vault.export'
 import { Route as AuthenticatedConsoleAppsAppIdIndexRouteImport } from './routes/_authenticated/console.apps.$appId.index'
 import { Route as AuthenticatedConsoleAppsAppIdAdvancedRouteImport } from './routes/_authenticated/console.apps.$appId.advanced'
 import { Route as AuthenticatedConsoleAppsAppIdAiPromptsRouteImport } from './routes/_authenticated/console.apps.$appId.ai-prompts'
@@ -492,6 +495,11 @@ const FIdRoute = FIdRouteImport.update({
 const GiftCodeRoute = GiftCodeRouteImport.update({
   id: '/gift_/$code',
   path: '/gift/$code',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const IdentityRevokeRoute = IdentityRevokeRouteImport.update({
+  id: '/identity/revoke',
+  path: '/identity/revoke',
   getParentRoute: () => rootRouteImport,
 } as any)
 const OauthAuthorizeRoute = OauthAuthorizeRouteImport.update({
@@ -871,6 +879,12 @@ const ApiPublicCronCleanupAssetsRoute =
     path: '/api/public/cron/cleanup-assets',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicCronPurgeAccountsRoute =
+  ApiPublicCronPurgeAccountsRouteImport.update({
+    id: '/api_/public/cron/purge-accounts',
+    path: '/api/public/cron/purge-accounts',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicCronPurgeAltchaRoute =
   ApiPublicCronPurgeAltchaRouteImport.update({
     id: '/api_/public/cron/purge-altcha',
@@ -1021,6 +1035,11 @@ const ApiPublicYoutubeCallbackRoute =
 const ApiPublicYoutubeCardRoute = ApiPublicYoutubeCardRouteImport.update({
   id: '/api_/public/youtube/card',
   path: '/api/public/youtube/card',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiUserVaultExportRoute = ApiUserVaultExportRouteImport.update({
+  id: '/api_/user/vault/export',
+  path: '/api/user/vault/export',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedConsoleAppsAppIdIndexRoute =
@@ -1175,6 +1194,7 @@ export interface FileRoutesByFullPath {
   '/dev/emails': typeof DevEmailsRoute
   '/f/$id': typeof FIdRoute
   '/gift/$code': typeof GiftCodeRoute
+  '/identity/revoke': typeof IdentityRevokeRoute
   '/oauth/authorize': typeof OauthAuthorizeRoute
   '/oauth/end-session': typeof OauthEndSessionRoute
   '/r/$username': typeof RUsernameRoute
@@ -1245,6 +1265,7 @@ export interface FileRoutesByFullPath {
   '/api/public/cron/availability': typeof ApiPublicCronAvailabilityRoute
   '/api/public/cron/check-dns': typeof ApiPublicCronCheckDnsRoute
   '/api/public/cron/cleanup-assets': typeof ApiPublicCronCleanupAssetsRoute
+  '/api/public/cron/purge-accounts': typeof ApiPublicCronPurgeAccountsRoute
   '/api/public/cron/purge-altcha': typeof ApiPublicCronPurgeAltchaRoute
   '/api/public/cron/purge-shared-files': typeof ApiPublicCronPurgeSharedFilesRoute
   '/api/public/cron/scan-transfers': typeof ApiPublicCronScanTransfersRoute
@@ -1272,6 +1293,7 @@ export interface FileRoutesByFullPath {
   '/api/public/webhooks/banking': typeof ApiPublicWebhooksBankingRoute
   '/api/public/youtube/callback': typeof ApiPublicYoutubeCallbackRoute
   '/api/public/youtube/card': typeof ApiPublicYoutubeCardRoute
+  '/api/user/vault/export': typeof ApiUserVaultExportRoute
   '/console/apps/': typeof AuthenticatedConsoleAppsIndexRoute
   '/console/apps/$appId/advanced': typeof AuthenticatedConsoleAppsAppIdAdvancedRoute
   '/console/apps/$appId/ai-prompts': typeof AuthenticatedConsoleAppsAppIdAiPromptsRoute
@@ -1347,6 +1369,7 @@ export interface FileRoutesByTo {
   '/dev/emails': typeof DevEmailsRoute
   '/f/$id': typeof FIdRoute
   '/gift/$code': typeof GiftCodeRoute
+  '/identity/revoke': typeof IdentityRevokeRoute
   '/oauth/authorize': typeof OauthAuthorizeRoute
   '/oauth/end-session': typeof OauthEndSessionRoute
   '/r/$username': typeof RUsernameRoute
@@ -1415,6 +1438,7 @@ export interface FileRoutesByTo {
   '/api/public/cron/availability': typeof ApiPublicCronAvailabilityRoute
   '/api/public/cron/check-dns': typeof ApiPublicCronCheckDnsRoute
   '/api/public/cron/cleanup-assets': typeof ApiPublicCronCleanupAssetsRoute
+  '/api/public/cron/purge-accounts': typeof ApiPublicCronPurgeAccountsRoute
   '/api/public/cron/purge-altcha': typeof ApiPublicCronPurgeAltchaRoute
   '/api/public/cron/purge-shared-files': typeof ApiPublicCronPurgeSharedFilesRoute
   '/api/public/cron/scan-transfers': typeof ApiPublicCronScanTransfersRoute
@@ -1442,6 +1466,7 @@ export interface FileRoutesByTo {
   '/api/public/webhooks/banking': typeof ApiPublicWebhooksBankingRoute
   '/api/public/youtube/callback': typeof ApiPublicYoutubeCallbackRoute
   '/api/public/youtube/card': typeof ApiPublicYoutubeCardRoute
+  '/api/user/vault/export': typeof ApiUserVaultExportRoute
   '/console/apps': typeof AuthenticatedConsoleAppsIndexRoute
   '/console/apps/$appId/advanced': typeof AuthenticatedConsoleAppsAppIdAdvancedRoute
   '/console/apps/$appId/ai-prompts': typeof AuthenticatedConsoleAppsAppIdAiPromptsRoute
@@ -1522,6 +1547,7 @@ export interface FileRoutesById {
   '/dev/emails': typeof DevEmailsRoute
   '/f/$id': typeof FIdRoute
   '/gift_/$code': typeof GiftCodeRoute
+  '/identity/revoke': typeof IdentityRevokeRoute
   '/oauth/authorize': typeof OauthAuthorizeRoute
   '/oauth/end-session': typeof OauthEndSessionRoute
   '/r/$username': typeof RUsernameRoute
@@ -1592,6 +1618,7 @@ export interface FileRoutesById {
   '/api_/public/cron/availability': typeof ApiPublicCronAvailabilityRoute
   '/api_/public/cron/check-dns': typeof ApiPublicCronCheckDnsRoute
   '/api_/public/cron/cleanup-assets': typeof ApiPublicCronCleanupAssetsRoute
+  '/api_/public/cron/purge-accounts': typeof ApiPublicCronPurgeAccountsRoute
   '/api_/public/cron/purge-altcha': typeof ApiPublicCronPurgeAltchaRoute
   '/api_/public/cron/purge-shared-files': typeof ApiPublicCronPurgeSharedFilesRoute
   '/api_/public/cron/scan-transfers': typeof ApiPublicCronScanTransfersRoute
@@ -1619,6 +1646,7 @@ export interface FileRoutesById {
   '/api_/public/webhooks/banking': typeof ApiPublicWebhooksBankingRoute
   '/api_/public/youtube/callback': typeof ApiPublicYoutubeCallbackRoute
   '/api_/public/youtube/card': typeof ApiPublicYoutubeCardRoute
+  '/api_/user/vault/export': typeof ApiUserVaultExportRoute
   '/_authenticated/console/apps/': typeof AuthenticatedConsoleAppsIndexRoute
   '/_authenticated/console/apps/$appId/advanced': typeof AuthenticatedConsoleAppsAppIdAdvancedRoute
   '/_authenticated/console/apps/$appId/ai-prompts': typeof AuthenticatedConsoleAppsAppIdAiPromptsRoute
@@ -1699,6 +1727,7 @@ export interface FileRouteTypes {
     | '/dev/emails'
     | '/f/$id'
     | '/gift/$code'
+    | '/identity/revoke'
     | '/oauth/authorize'
     | '/oauth/end-session'
     | '/r/$username'
@@ -1769,6 +1798,7 @@ export interface FileRouteTypes {
     | '/api/public/cron/availability'
     | '/api/public/cron/check-dns'
     | '/api/public/cron/cleanup-assets'
+    | '/api/public/cron/purge-accounts'
     | '/api/public/cron/purge-altcha'
     | '/api/public/cron/purge-shared-files'
     | '/api/public/cron/scan-transfers'
@@ -1796,6 +1826,7 @@ export interface FileRouteTypes {
     | '/api/public/webhooks/banking'
     | '/api/public/youtube/callback'
     | '/api/public/youtube/card'
+    | '/api/user/vault/export'
     | '/console/apps/'
     | '/console/apps/$appId/advanced'
     | '/console/apps/$appId/ai-prompts'
@@ -1871,6 +1902,7 @@ export interface FileRouteTypes {
     | '/dev/emails'
     | '/f/$id'
     | '/gift/$code'
+    | '/identity/revoke'
     | '/oauth/authorize'
     | '/oauth/end-session'
     | '/r/$username'
@@ -1939,6 +1971,7 @@ export interface FileRouteTypes {
     | '/api/public/cron/availability'
     | '/api/public/cron/check-dns'
     | '/api/public/cron/cleanup-assets'
+    | '/api/public/cron/purge-accounts'
     | '/api/public/cron/purge-altcha'
     | '/api/public/cron/purge-shared-files'
     | '/api/public/cron/scan-transfers'
@@ -1966,6 +1999,7 @@ export interface FileRouteTypes {
     | '/api/public/webhooks/banking'
     | '/api/public/youtube/callback'
     | '/api/public/youtube/card'
+    | '/api/user/vault/export'
     | '/console/apps'
     | '/console/apps/$appId/advanced'
     | '/console/apps/$appId/ai-prompts'
@@ -2045,6 +2079,7 @@ export interface FileRouteTypes {
     | '/dev/emails'
     | '/f/$id'
     | '/gift_/$code'
+    | '/identity/revoke'
     | '/oauth/authorize'
     | '/oauth/end-session'
     | '/r/$username'
@@ -2115,6 +2150,7 @@ export interface FileRouteTypes {
     | '/api_/public/cron/availability'
     | '/api_/public/cron/check-dns'
     | '/api_/public/cron/cleanup-assets'
+    | '/api_/public/cron/purge-accounts'
     | '/api_/public/cron/purge-altcha'
     | '/api_/public/cron/purge-shared-files'
     | '/api_/public/cron/scan-transfers'
@@ -2142,6 +2178,7 @@ export interface FileRouteTypes {
     | '/api_/public/webhooks/banking'
     | '/api_/public/youtube/callback'
     | '/api_/public/youtube/card'
+    | '/api_/user/vault/export'
     | '/_authenticated/console/apps/'
     | '/_authenticated/console/apps/$appId/advanced'
     | '/_authenticated/console/apps/$appId/ai-prompts'
@@ -2213,6 +2250,7 @@ export interface RootRouteChildren {
   DevEmailsRoute: typeof DevEmailsRoute
   FIdRoute: typeof FIdRoute
   GiftCodeRoute: typeof GiftCodeRoute
+  IdentityRevokeRoute: typeof IdentityRevokeRoute
   OauthAuthorizeRoute: typeof OauthAuthorizeRoute
   OauthEndSessionRoute: typeof OauthEndSessionRoute
   RUsernameRoute: typeof RUsernameRoute
@@ -2254,6 +2292,7 @@ export interface RootRouteChildren {
   ApiPublicCronAvailabilityRoute: typeof ApiPublicCronAvailabilityRoute
   ApiPublicCronCheckDnsRoute: typeof ApiPublicCronCheckDnsRoute
   ApiPublicCronCleanupAssetsRoute: typeof ApiPublicCronCleanupAssetsRoute
+  ApiPublicCronPurgeAccountsRoute: typeof ApiPublicCronPurgeAccountsRoute
   ApiPublicCronPurgeAltchaRoute: typeof ApiPublicCronPurgeAltchaRoute
   ApiPublicCronPurgeSharedFilesRoute: typeof ApiPublicCronPurgeSharedFilesRoute
   ApiPublicCronScanTransfersRoute: typeof ApiPublicCronScanTransfersRoute
@@ -2281,6 +2320,7 @@ export interface RootRouteChildren {
   ApiPublicWebhooksBankingRoute: typeof ApiPublicWebhooksBankingRoute
   ApiPublicYoutubeCallbackRoute: typeof ApiPublicYoutubeCallbackRoute
   ApiPublicYoutubeCardRoute: typeof ApiPublicYoutubeCardRoute
+  ApiUserVaultExportRoute: typeof ApiUserVaultExportRoute
   ApiPublicBookingsIdActionRoute: typeof ApiPublicBookingsIdActionRoute
 }
 
@@ -2718,6 +2758,13 @@ declare module '@tanstack/react-router' {
       path: '/gift/$code'
       fullPath: '/gift/$code'
       preLoaderRoute: typeof GiftCodeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/identity/revoke': {
+      id: '/identity/revoke'
+      path: '/identity/revoke'
+      fullPath: '/identity/revoke'
+      preLoaderRoute: typeof IdentityRevokeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/oauth/authorize': {
@@ -3210,6 +3257,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicCronCleanupAssetsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api_/public/cron/purge-accounts': {
+      id: '/api_/public/cron/purge-accounts'
+      path: '/api/public/cron/purge-accounts'
+      fullPath: '/api/public/cron/purge-accounts'
+      preLoaderRoute: typeof ApiPublicCronPurgeAccountsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api_/public/cron/purge-altcha': {
       id: '/api_/public/cron/purge-altcha'
       path: '/api/public/cron/purge-altcha'
@@ -3397,6 +3451,13 @@ declare module '@tanstack/react-router' {
       path: '/api/public/youtube/card'
       fullPath: '/api/public/youtube/card'
       preLoaderRoute: typeof ApiPublicYoutubeCardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api_/user/vault/export': {
+      id: '/api_/user/vault/export'
+      path: '/api/user/vault/export'
+      fullPath: '/api/user/vault/export'
+      preLoaderRoute: typeof ApiUserVaultExportRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/console/apps/$appId/': {
@@ -3762,6 +3823,7 @@ const rootRouteChildren: RootRouteChildren = {
   DevEmailsRoute: DevEmailsRoute,
   FIdRoute: FIdRoute,
   GiftCodeRoute: GiftCodeRoute,
+  IdentityRevokeRoute: IdentityRevokeRoute,
   OauthAuthorizeRoute: OauthAuthorizeRoute,
   OauthEndSessionRoute: OauthEndSessionRoute,
   RUsernameRoute: RUsernameRoute,
@@ -3804,6 +3866,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicCronAvailabilityRoute: ApiPublicCronAvailabilityRoute,
   ApiPublicCronCheckDnsRoute: ApiPublicCronCheckDnsRoute,
   ApiPublicCronCleanupAssetsRoute: ApiPublicCronCleanupAssetsRoute,
+  ApiPublicCronPurgeAccountsRoute: ApiPublicCronPurgeAccountsRoute,
   ApiPublicCronPurgeAltchaRoute: ApiPublicCronPurgeAltchaRoute,
   ApiPublicCronPurgeSharedFilesRoute: ApiPublicCronPurgeSharedFilesRoute,
   ApiPublicCronScanTransfersRoute: ApiPublicCronScanTransfersRoute,
@@ -3831,6 +3894,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicWebhooksBankingRoute: ApiPublicWebhooksBankingRoute,
   ApiPublicYoutubeCallbackRoute: ApiPublicYoutubeCallbackRoute,
   ApiPublicYoutubeCardRoute: ApiPublicYoutubeCardRoute,
+  ApiUserVaultExportRoute: ApiUserVaultExportRoute,
   ApiPublicBookingsIdActionRoute: ApiPublicBookingsIdActionRoute,
 }
 export const routeTree = rootRouteImport
