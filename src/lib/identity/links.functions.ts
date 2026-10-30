@@ -35,7 +35,7 @@ export const linkRelMeIdentity = createServerFn({ method: "POST" })
     await consumeStepUp(context.userId, data.code);
     const { sql } = await import("@/lib/neon");
     const { siteOrigin } = await import("@/lib/site-mail.server");
-    const rows = (await sql`select handle from public.profiles where id = ${context.userId} and handle is not null limit 1`) as { handle: string }[];
+    const rows = (await sql`select username as handle from public.profiles where id = ${context.userId} and username is not null limit 1`) as { handle: string }[];
     const handle = rows[0]?.handle;
     if (!handle) throw new Error("Kies eerst een ROUT-handle.");
     const origin = siteOrigin();

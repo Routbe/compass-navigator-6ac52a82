@@ -17,7 +17,7 @@ import { sql } from "@/lib/neon";
 
 type Row = Record<string, unknown>;
 
-export type HandleSlot = "root" | "alias" | "root_domain";
+export type HandleSlot = "root" | "alias" | "root_domain" | "dns_claim";
 
 export type HandleOwner = { userId: string; slot: HandleSlot };
 
@@ -50,6 +50,13 @@ export async function findHandleOwner(handle: string): Promise<HandleOwner | nul
   }
   const alias = aliasRows[0];
   if (alias) return { userId: alias["user_id"] as string, slot: "alias" };
+
+  // A DNS-verified domain (db/0119) holds its root handle, also during the 30-day grace period.
+  const claimRows = (await sql`
+    select user_id from public.domain_claims
+     where handle = ${h} and status in ('verified', 'grace') limit 1
+  `.catch(() => [])) as Row[];
+  if (claimRows[0]) return { userId: claimRows[0]["user_id"] as string, slot: "dns_claim" };
 
   return null;
 }
