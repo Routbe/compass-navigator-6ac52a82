@@ -32,6 +32,7 @@ import { BunqConnectionPanel } from "@/components/dashboard/BunqConnectionPanel"
 import { BillingHistoryPanel } from "@/components/dashboard/BillingHistoryPanel";
 import { DataExportCard } from "@/components/dashboard/DataExportCard";
 import { DeleteAccountPanel } from "@/components/settings/DeleteAccountPanel";
+import { DomainClaimPanel } from "@/components/settings/DomainClaimPanel";
 import { IdentityLinksPanel } from "@/components/settings/IdentityLinksPanel";
 import { CustomDomainPanel } from "@/components/dashboard/CustomDomainPanel";
 
@@ -358,6 +359,8 @@ export default function AccountSettings() {
             <DataExportCard />
             <div className="h-px bg-border" />
             <CustomDomainPanel />
+            <div className="h-px bg-border" />
+            <DomainClaimPanel />
           </section>
         </TabsContent>
 
