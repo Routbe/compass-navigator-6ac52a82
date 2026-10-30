@@ -92,6 +92,7 @@ export const saveOAuthClient = createServerFn({ method: "POST" })
       privacyUrl: data.privacyUrl ?? null,
       termsUrl: data.termsUrl ?? null,
       redirectUris: data.redirectUris,
+      ...(data.postLogoutRedirectUris ? { postLogoutRedirectUris: data.postLogoutRedirectUris } : {}),
       scopes: data.scopes,
       ...(data.flowPreference ? { flowPreference: data.flowPreference } : {}),
       ...(data.richIdentityEnabled !== undefined ? { richIdentityEnabled: data.richIdentityEnabled } : {}),

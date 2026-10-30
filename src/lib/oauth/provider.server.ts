@@ -171,16 +171,17 @@ export type ClientInput = {
   privacyUrl?: string | null;
   termsUrl?: string | null;
   redirectUris: string[];
+  postLogoutRedirectUris?: string[];
   scopes: string[];
   flowPreference?: "seamless" | "strict";
   richIdentityEnabled?: boolean;
   handleSyncEnabled?: boolean;
 };
 
-function sanitize(input: ClientInput) {
+function cleanUriList(list: string[]): string[] {
   // Opschonen + dedupliceren op genormaliseerde vorm (spaties, onzichtbare tekens, geëncodeerde plak).
   const seen = new Set<string>();
-  const uris = input.redirectUris
+  const uris = list
     .map((u) => cleanRedirectUri(u))
     .filter((u) => {
       const key = normalizeRedirectUri(u) ?? u;
@@ -190,18 +191,24 @@ function sanitize(input: ClientInput) {
     });
   const bad = uris.find((u) => !isValidRedirectUri(u));
   if (bad) throw new OAuthError("invalid_redirect_uri", `Ongeldige redirect-URI: ${bad}`);
+  return uris.map((uri) => normalizeRedirectUri(uri)!);
+}
+
+function sanitize(input: ClientInput) {
+  const uris = cleanUriList(input.redirectUris);
+  const logoutUris = input.postLogoutRedirectUris ? cleanUriList(input.postLogoutRedirectUris) : null;
   const scopes = [...new Set(input.scopes.filter((s) => SUPPORTED_SCOPES.includes(s as Scope)))];
   if (!scopes.includes("openid")) scopes.unshift("openid");
   const name = input.name.trim();
   if (!name) throw new OAuthError("invalid_name", "Geef je app een naam.");
-  return { name, uris: uris.map((uri) => normalizeRedirectUri(uri)!), scopes };
+  return { name, uris, logoutUris, scopes };
 }
 
 export async function createClient(
   ownerUserId: string,
   input: ClientInput,
 ): Promise<{ client: OAuthClient; clientSecret: string }> {
-  const { name, uris, scopes } = sanitize(input);
+  const { name, uris, logoutUris, scopes } = sanitize(input);
   const sectors = new Set(uris.map(redirectSector));
   if (sectors.size !== 1) throw new OAuthError("invalid_client_metadata", "Pairwise apps vereisen één redirect-host.");
   const sectorId = uris[0] ? redirectSector(uris[0]) : null;
@@ -209,10 +216,10 @@ export async function createClient(
   const clientSecret = generateClientSecret();
   const secretHash = await hashClientSecret(clientSecret, await secretPepper());
   const rows = (await sql`insert into public.oauth_clients
-    (owner_user_id, client_id, secret_hash, name, logo_url, homepage_url, privacy_url, terms_url, redirect_uris, scopes, subject_type, sector_id)
+    (owner_user_id, client_id, secret_hash, name, logo_url, homepage_url, privacy_url, terms_url, redirect_uris, post_logout_redirect_uris, scopes, subject_type, sector_id)
     values (${ownerUserId}, ${clientId}, ${secretHash}, ${name}, ${input.logoUrl ?? null},
             ${input.homepageUrl ?? null}, ${input.privacyUrl ?? null}, ${input.termsUrl ?? null},
-            ${uris}, ${scopes}, 'pairwise', ${sectorId})
+            ${uris}, ${logoutUris ?? []}, ${scopes}, 'pairwise', ${sectorId})
     returning *`) as Row[];
   const created = rows[0]!;
   if (input.description) {
@@ -235,7 +242,7 @@ export async function updateClient(
   id: string,
   input: ClientInput,
 ): Promise<OAuthClient> {
-  const { name, uris, scopes } = sanitize(input);
+  const { name, uris, logoutUris, scopes } = sanitize(input);
   const current = await getClientByClientId(String((await sql`select client_id from public.oauth_clients where id=${id} and owner_user_id=${ownerUserId}`)[0]?.["client_id"] ?? ""));
   if (current?.subjectType === "pairwise" && uris.some((uri) => redirectSector(uri) !== current.sectorId)) {
     throw new OAuthError("invalid_client_metadata", "De pairwise redirect-host kan niet stilzwijgend wijzigen.");
@@ -245,6 +252,7 @@ export async function updateClient(
       homepage_url = ${input.homepageUrl ?? null}, privacy_url = ${input.privacyUrl ?? null},
       terms_url = ${input.termsUrl ?? null},
       description = coalesce(${input.description ?? null}, description), redirect_uris = ${uris}, scopes = ${scopes},
+      post_logout_redirect_uris = coalesce(${logoutUris}::text[], post_logout_redirect_uris),
       flow_preference = coalesce(${input.flowPreference ?? null}, flow_preference),
       rich_identity_enabled = coalesce(${input.richIdentityEnabled ?? null}::boolean, rich_identity_enabled),
       handle_sync_enabled = coalesce(${input.handleSyncEnabled ?? null}::boolean, handle_sync_enabled),
