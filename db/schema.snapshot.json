@@ -1165,6 +1165,181 @@
     },
     {
       "schema": "public",
+      "name": "account_deletion_audit",
+      "columns": [
+        {
+          "name": "id",
+          "type": "bigint",
+          "notNull": true,
+          "default": null,
+          "identity": "a",
+          "generated": null
+        },
+        {
+          "name": "user_id_hash",
+          "type": "bytea",
+          "notNull": true,
+          "default": null,
+          "identity": null,
+          "generated": null
+        },
+        {
+          "name": "event",
+          "type": "text",
+          "notNull": true,
+          "default": null,
+          "identity": null,
+          "generated": null
+        },
+        {
+          "name": "signature",
+          "type": "bytea",
+          "notNull": true,
+          "default": null,
+          "identity": null,
+          "generated": null
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "notNull": true,
+          "default": "now()",
+          "identity": null,
+          "generated": null
+        }
+      ],
+      "constraints": [
+        {
+          "name": "account_deletion_audit_event_check",
+          "kind": "c",
+          "def": "CHECK ((event = ANY (ARRAY['requested'::text, 'cancelled'::text, 'purged'::text])))"
+        },
+        {
+          "name": "account_deletion_audit_pkey",
+          "kind": "p",
+          "def": "PRIMARY KEY (id)"
+        },
+        {
+          "name": "account_deletion_audit_signature_check",
+          "kind": "c",
+          "def": "CHECK ((octet_length(signature) = 32))"
+        },
+        {
+          "name": "account_deletion_audit_user_id_hash_check",
+          "kind": "c",
+          "def": "CHECK ((octet_length(user_id_hash) = 32))"
+        }
+      ],
+      "indexes": [],
+      "triggers": [
+        "CREATE TRIGGER account_deletion_audit_immutable BEFORE DELETE OR UPDATE ON public.account_deletion_audit FOR EACH ROW EXECUTE FUNCTION account_deletion_audit_append_only()"
+      ],
+      "rls": true,
+      "forceRls": false,
+      "policies": [
+        {
+          "name": "account_deletion_audit_insert",
+          "permissive": true,
+          "roles": [
+            "rout_app"
+          ],
+          "cmd": "INSERT",
+          "using": null,
+          "check": "true"
+        }
+      ],
+      "grants": {
+        "rout_app": [
+          "INSERT",
+          "SELECT"
+        ]
+      }
+    },
+    {
+      "schema": "public",
+      "name": "account_deletions",
+      "columns": [
+        {
+          "name": "user_id",
+          "type": "uuid",
+          "notNull": true,
+          "default": null,
+          "identity": null,
+          "generated": null
+        },
+        {
+          "name": "requested_at",
+          "type": "timestamp with time zone",
+          "notNull": true,
+          "default": "now()",
+          "identity": null,
+          "generated": null
+        },
+        {
+          "name": "purge_after",
+          "type": "timestamp with time zone",
+          "notNull": true,
+          "default": null,
+          "identity": null,
+          "generated": null
+        },
+        {
+          "name": "cancelled_at",
+          "type": "timestamp with time zone",
+          "notNull": false,
+          "default": null,
+          "identity": null,
+          "generated": null
+        },
+        {
+          "name": "completed_at",
+          "type": "timestamp with time zone",
+          "notNull": false,
+          "default": null,
+          "identity": null,
+          "generated": null
+        }
+      ],
+      "constraints": [
+        {
+          "name": "account_deletions_grace",
+          "kind": "c",
+          "def": "CHECK ((purge_after >= (requested_at + '7 days'::interval)))"
+        },
+        {
+          "name": "account_deletions_pkey",
+          "kind": "p",
+          "def": "PRIMARY KEY (user_id)"
+        }
+      ],
+      "indexes": [
+        "CREATE INDEX account_deletions_due_idx ON public.account_deletions USING btree (purge_after) WHERE ((cancelled_at IS NULL) AND (completed_at IS NULL))"
+      ],
+      "triggers": [],
+      "rls": true,
+      "forceRls": false,
+      "policies": [
+        {
+          "name": "account_deletions_owner",
+          "permissive": true,
+          "roles": [
+            "rout_app"
+          ],
+          "cmd": "ALL",
+          "using": "((user_id)::text = current_setting('rout.user_id'::text, true))",
+          "check": "((user_id)::text = current_setting('rout.user_id'::text, true))"
+        }
+      ],
+      "grants": {
+        "rout_app": [
+          "INSERT",
+          "SELECT",
+          "UPDATE"
+        ]
+      }
+    },
+    {
+      "schema": "public",
       "name": "account_merge_tickets",
       "columns": [
         {
@@ -11094,7 +11269,7 @@
         {
           "name": "released_by",
           "type": "uuid",
-          "notNull": true,
+          "notNull": false,
           "default": null,
           "identity": null,
           "generated": null
@@ -11130,7 +11305,7 @@
         {
           "name": "reserved_brand_releases_released_by_fkey",
           "kind": "f",
-          "def": "FOREIGN KEY (released_by) REFERENCES users(id)"
+          "def": "FOREIGN KEY (released_by) REFERENCES users(id) ON DELETE SET NULL"
         },
         {
           "name": "reserved_brand_releases_term_fkey",
@@ -14983,7 +15158,7 @@
         {
           "name": "users_account_status_check",
           "kind": "c",
-          "def": "CHECK ((account_status = ANY (ARRAY['active'::text, 'migrated_sunset'::text, 'retired'::text])))"
+          "def": "CHECK ((account_status = ANY (ARRAY['active'::text, 'migrated_sunset'::text, 'retired'::text, 'pending_deletion'::text])))"
         },
         {
           "name": "users_migrated_to_workspace_id_fkey",
@@ -16203,6 +16378,12 @@
       "name": "uid",
       "args": "",
       "def": "CREATE OR REPLACE FUNCTION auth.uid()\n RETURNS uuid\n LANGUAGE sql\n STABLE\nAS $function$\n  select nullif(current_setting('request.jwt.claim.sub', true), '')::uuid\n$function$"
+    },
+    {
+      "schema": "public",
+      "name": "account_deletion_audit_append_only",
+      "args": "",
+      "def": "CREATE OR REPLACE FUNCTION public.account_deletion_audit_append_only()\n RETURNS trigger\n LANGUAGE plpgsql\nAS $function$ begin raise exception 'account_deletion_audit_append_only'; end $function$"
     },
     {
       "schema": "public",

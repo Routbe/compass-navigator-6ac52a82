@@ -137,6 +137,22 @@ export interface NeonAuthVerificationRow {
   "updatedAt": string | Date;
 }
 
+export interface PublicAccountDeletionAuditRow {
+  "id": string;
+  "user_id_hash": Uint8Array;
+  "event": string;
+  "signature": Uint8Array;
+  "created_at": string | Date;
+}
+
+export interface PublicAccountDeletionsRow {
+  "user_id": string;
+  "requested_at": string | Date;
+  "purge_after": string | Date;
+  "cancelled_at": string | Date | null;
+  "completed_at": string | Date | null;
+}
+
 export interface PublicAccountMergeTicketsRow {
   "id": string;
   "primary_user_id": string;
@@ -1219,7 +1235,7 @@ export interface PublicReferralsRow {
 export interface PublicReservedBrandReleasesRow {
   "term": string;
   "user_id": string;
-  "released_by": string;
+  "released_by": string | null;
   "evidence": string;
   "created_at": string | Date;
 }
@@ -1775,6 +1791,8 @@ export interface DbTables {
   "neon_auth.twoFactor": NeonAuthTwoFactorRow;
   "neon_auth.user": NeonAuthUserRow;
   "neon_auth.verification": NeonAuthVerificationRow;
+  "public.account_deletion_audit": PublicAccountDeletionAuditRow;
+  "public.account_deletions": PublicAccountDeletionsRow;
   "public.account_merge_tickets": PublicAccountMergeTicketsRow;
   "public.admin_audit_log": PublicAdminAuditLogRow;
   "public.admin_bootstrap_tokens": PublicAdminBootstrapTokensRow;
